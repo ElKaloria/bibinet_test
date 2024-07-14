@@ -29,7 +29,7 @@ class Part(models.Model):
     mark_id = models.ForeignKey(Mark, on_delete=models.CASCADE)
     model_id = models.ForeignKey(Model, on_delete=models.CASCADE)
     price = models.FloatField()
-    json_data = models.JSONField()
+    json_data = models.JSONField(default=dict)
     is_visible = models.BooleanField(default=True)
 
     def __str__(self):
