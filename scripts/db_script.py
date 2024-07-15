@@ -30,7 +30,7 @@ def part_create() -> None:
                                    price=random.randint(1000, 10000),
                                    json_data={"color": random.choice(colors),
                                               "is_new_part": random.choice([True, False]),
-                                              "is_visible": random.choice([True, False])},
+                                              "count": random.randint(1, 10)},
                                    is_visible=True)
         part.save()
 
