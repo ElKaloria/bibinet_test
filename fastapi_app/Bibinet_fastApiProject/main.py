@@ -1,6 +1,8 @@
-from fastapi import FastAPI, Depends
+import json
+
+from fastapi import FastAPI, Depends, Body
 import psycopg2
-from typing import List, Tuple
+from typing import List, Annotated, Optional
 from schemas import *
 
 app = FastAPI()
@@ -40,5 +42,34 @@ async def mark_view(coon=Depends(connection), page: int = 1, page_size: int = 10
 
 
 @app.post("/search")
-async def search_part_view(coon=Depends(connection), page: int = 1, page_size: int = 10, name: str = ""):
-    pass
+async def search_part_view(*,
+                           coon=Depends(connection),
+                           page: int = 1,
+                           page_size: int = 10,
+                           part_name: str = Body(embed=True),
+                           mark_name: Annotated[Optional[str], Body()],
+                           mark_list: Annotated[Optional[List[int]], Body()],
+                           params: dict = Body(embed=True),
+                           price_gte: float = Body(embed=True),
+                           price_lte: float = Body(embed=True),
+                           ):
+    cur = coon.cursor()
+    if mark_list not in [None, '', []]:
+        cur.execute(f"SELECT part_app_part.id, part_app_part.name, part_app_part.mark_id_id, part_app_part.model_id_id,"
+                    f"part_app_part.price, part_app_part.json_data, part_app_part.is_visible FROM part_app_part WHERE "
+                    f"(part_app_part.json_data @> '{json.dumps(params)}' AND part_app_part.mark_id_id IN {mark_list} AND "
+                    f"part_app_part.name::text LIKE '{part_name}' AND part_app_part.price >= {price_gte} "
+                    f"AND part_app_part.price <= {price_lte})")
+    elif mark_name not in [None, '']:
+        cur.execute(f"SELECT part_app_part.id, part_app_part.name, part_app_part.mark_id_id, part_app_part.model_id_id,"
+                    f"part_app_part.price, part_app_part.json_data, part_app_part.is_visible FROM part_app_part "
+                    f"INNER JOIN part_app_mark ON (part_app_part.mark_id_id = part_app_mark.id) WHERE "
+                    f"(part_app_part.json_data @> '{json.dumps(params)}' AND part_app_mark.name::text LIKE '{mark_name}' AND "
+                    f"part_app_part.name::text LIKE '{part_name}' AND part_app_part.price >= {price_gte} "
+                    f"AND part_app_part.price <= {price_lte})")
+    dict_rows = [dict(zip(["mark_id", "mark_name", "mark_producer_country_name", "model_id", "model_name",
+                           "part_name", "price", "json_data", "is_visible"], list(row))) for row in cur.fetchall()]
+
+    offset_min = page_size * (page - 1)
+    offset_max = page_size * page
+    return dict_rows[offset_min:offset_max] + [{"page": page}]
