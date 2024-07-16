@@ -1,0 +1,4 @@
+fastapi_app
+.venv
+Dockerfile
+docker-compose.yml
