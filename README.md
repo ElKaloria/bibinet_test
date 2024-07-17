@@ -20,54 +20,7 @@ Django >= 3.12
 показывать запчасть (is_visible) 
 Добавляем пути для вывода марок и моделей /mark/ и /model/ 
 Создаем поиск по запчастям 
-POST /search/part/ 
-Параметры поиска передаем через body json, все запросы строим через ORM 
-Примеры поиска по параметрам: 
-{ 
-"mark_name": "honda", 
-"part_name": "бампер", 
-"params": { 
-"color": "черный" 
-}, 
-"page": 1 
-} 
-{ 
-"mark_list": [1,3], 
-"part_name": "бамп", 
-"params": { 
-"is_new_part": false, 
-"color": "белый" 
-}, 
-"price_gte": 2000, 
-"price_lte": 5000, 
-    "page": 1 
-} 
-  
-Результат поиска 
-{ 
-    "response": [ 
-        { 
-            "mark": { 
-                "id": 1, 
-                "name": "Honda", 
-                "producer_country_name": "Япония" 
-            }, 
-            "model": { 
-                "id": 2, 
-                "name": "Accord" 
-            }, 
-            "name": "Бампер передний", 
-            "json_data": { 
-                "is_new_part": true, 
-                "color": "красный", 
-                "count": 4 
-            }, 
-            "price": 2300 
-        } 
-    ], 
-    "count": 1, 
-    "summ": 2300 
-} 
+
   
 Выводим по 10 записей в результатах (через page выводим следующие страницы) 
 response - список с результатом поиска (по 10) 
