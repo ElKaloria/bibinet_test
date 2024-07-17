@@ -23,6 +23,7 @@ async def mark_view(coon=Depends(connection), page: int = 1, page_size: int = 10
     cur = coon.cursor()
     cur.execute("SELECT * FROM part_app_mark")
     dict_rows = [dict(zip(Mark.__fields__.keys(), list(row))) for row in cur.fetchall()]
+    print(dict_rows)
     offset_min = page_size * (page - 1)
     offset_max = page_size * page
     return dict_rows[offset_min:offset_max] + [{"page": page}]
