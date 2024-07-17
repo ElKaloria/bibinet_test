@@ -43,3 +43,35 @@ FastAPI
   
 Создаем Git репозиторий, и делаем коммиты почаще для каждой новой логики, все можно в 
 одном репозитории делать. 
+
+ИНСТРУКЦИЯ ПО ЗАПУСКУ ПРОЕКТА:
+Оба сервиса запускаем через команду docker-compose -f docker-compose.prod.yml up -d для прода 
+и docker-compose -f docker-compose.dev.yml up -d для запуска в режиме разработки.
+Бесшовный деплой можно настроить с помощью docker swarm и настроенным для этого docker-compose файлом, который будет иметь примерно такой вид:
+deploy:
+      placement:
+        constraints:
+          - "node.labels.TAG==stage"
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    healthcheck:
+      test: curl -sS http://127.0.0.1:4003/ptm/api/healthcheck || echo 1
+      interval: 30s
+      timeout: 3s
+      retries: 12
+И пример комманды докер сварм:
+docker pull docker-registry.ru:5000/ptm:stage;
+docker service update --image docker-registry.ru:5000/ptm:stage stage;
+Из-за нехватки времени реализовать это и сравнение разных поисков в проекте не успел.
