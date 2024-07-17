@@ -55,15 +55,21 @@ async def search_part_view(*,
                            ):
     cur = coon.cursor()
     if mark_list not in [None, '', []]:
-        cur.execute(f"SELECT part_app_part.id, part_app_part.name, part_app_part.mark_id_id, part_app_part.model_id_id,"
-                    f"part_app_part.price, part_app_part.json_data, part_app_part.is_visible FROM part_app_part WHERE "
-                    f"(part_app_part.json_data @> '{json.dumps(params)}' AND part_app_part.mark_id_id IN {mark_list} AND "
+        cur.execute(f"SELECT part_app_part.mark_id_id, part_app_mark.name, part_app_mark.producer_country_name, "
+                    f"part_app_part.model_id_id, part_app_model.name, part_app_part.name, "
+                    f"part_app_part.price, part_app_part.json_data, part_app_part.is_visible FROM part_app_part "
+                    f"INNER JOIN part_app_mark ON (part_app_part.mark_id_id = part_app_mark.id)"
+                    f"INNER JOIN part_app_model ON (part_app_part.model_id_id = part_app_model.id) WHERE"
+                    f"(part_app_part.json_data @> '{json.dumps(params)}' AND part_app_part.mark_id_id IN "
+                    f"{tuple(mark_list)} AND "
                     f"part_app_part.name::text LIKE '{part_name}' AND part_app_part.price >= {price_gte} "
                     f"AND part_app_part.price <= {price_lte})")
     elif mark_name not in [None, '']:
-        cur.execute(f"SELECT part_app_part.id, part_app_part.name, part_app_part.mark_id_id, part_app_part.model_id_id,"
+        cur.execute(f"SELECT part_app_part.mark_id_id, part_app_mark.name, part_app_mark.producer_country_name, "
+                    f"part_app_part.model_id_id, part_app_model.name, part_app_part.name, "
                     f"part_app_part.price, part_app_part.json_data, part_app_part.is_visible FROM part_app_part "
-                    f"INNER JOIN part_app_mark ON (part_app_part.mark_id_id = part_app_mark.id) WHERE "
+                    f"INNER JOIN part_app_mark ON (part_app_part.mark_id_id = part_app_mark.id)"
+                    f"INNER JOIN part_app_model ON (part_app_part.model_id_id = part_app_model.id) WHERE "
                     f"(part_app_part.json_data @> '{json.dumps(params)}' AND part_app_mark.name::text LIKE '{mark_name}' AND "
                     f"part_app_part.name::text LIKE '{part_name}' AND part_app_part.price >= {price_gte} "
                     f"AND part_app_part.price <= {price_lte})")
@@ -72,4 +78,5 @@ async def search_part_view(*,
 
     offset_min = page_size * (page - 1)
     offset_max = page_size * page
-    return dict_rows[offset_min:offset_max] + [{"page": page}]
+    return dict_rows[offset_min:offset_max] + [{"page": page, "count": len(dict_rows),
+                                                "summ": sum([dict_rows[i]["price"] for i in range(len(dict_rows))])}]
