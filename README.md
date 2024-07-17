@@ -1,5 +1,5 @@
-Тестовое задание на Django для bibinet
-Необходимо создать 2 сервиса с отдачей данных в JSON формате, на Django и FastAPI.  
+<h1>Тестовое задание на Django для bibinet</h1>
+<p> Необходимо создать 2 сервиса с отдачей данных в JSON формате, на Django и FastAPI.  
 Базу используем PostgreSQL. 
 Django >= 3.12 
 Сторонние библиотеки не используем, такие как Django REST framework. Делаем тем что идет из 
@@ -43,12 +43,14 @@ FastAPI
   
 Создаем Git репозиторий, и делаем коммиты почаще для каждой новой логики, все можно в 
 одном репозитории делать. 
+</p>
 
-ИНСТРУКЦИЯ ПО ЗАПУСКУ ПРОЕКТА:
-Оба сервиса запускаем через команду docker-compose -f docker-compose.prod.yml up -d для прода 
-и docker-compose -f docker-compose.dev.yml up -d для запуска в режиме разработки.
-Бесшовный деплой можно настроить с помощью docker swarm и настроенным для этого docker-compose файлом, который будет иметь примерно такой вид:
-deploy:
+<h2>ИНСТРУКЦИЯ ПО ЗАПУСКУ ПРОЕКТА:</h2>
+<p>Оба сервиса запускаем через команду:</p>
+  <code>docker-compose -f docker-compose.prod.yml up -d</code> <p>для прода</p> 
+  <code>docker-compose -f docker-compose.dev.yml up -d </code> <p>для запуска в режиме разработки.</p>
+<h3>Бесшовный деплой можно настроить с помощью docker swarm и настроенным для этого docker-compose файлом, который будет иметь примерно такой вид:</h3>
+<code>deploy:
       placement:
         constraints:
           - "node.labels.TAG==stage"
@@ -71,7 +73,8 @@ deploy:
       interval: 30s
       timeout: 3s
       retries: 12
-И пример комманды докер сварм:
-docker pull docker-registry.ru:5000/ptm:stage;
-docker service update --image docker-registry.ru:5000/ptm:stage stage;
-Из-за нехватки времени реализовать это и сравнение разных поисков в проекте не успел.
+</code>
+<p>И пример комманды докер сварм:</p>
+<code>docker pull docker-registry.ru:5000/ptm:stage;
+docker service update --image docker-registry.ru:5000/ptm:stage stage;</code>
+<p>Из-за нехватки времени реализовать это и сравнение разных поисков в проекте не успел.</p>
