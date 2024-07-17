@@ -1,0 +1,65 @@
+version: '3.9'
+services:
+  web:
+    container_name: fastapi_app
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - .:/app
+    expose:
+      - "8000"
+    depends_on:
+        db:
+            condition: service_healthy
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "1337:80"
+    depends_on:
+      - web
+
+  db:
+    container_name: db_container
+    image: postgres:latest
+    volumes:
+      - bibinet_project_postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres123"
+      POSTGRES_DB: "BibinetDB"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "example@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "postgres123"
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    volumes:
+      - bibinet_project_pgadmin-data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    restart: unless-stopped
+    depends_on:
+      - db
+
+
+volumes:
+  bibinet_project_postgres_data:
+    external: true
+  bibinet_project_pgadmin-data:
+    external: true
